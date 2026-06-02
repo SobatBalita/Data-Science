@@ -4,9 +4,9 @@ Repository ini berisi proses Data Science untuk pengolahan dataset tabular antro
 
 ## Gambaran Umum
 
-SobatBalita merupakan aplikasi web berbasis Artificial Intelligence untuk membantu proses skrining awal kesehatan balita. Pada bagian Data Science, fokus pekerjaan berada pada pengolahan data tabular yang berisi informasi jenis kelamin, umur, tinggi badan, berat badan, serta label status stunting dan wasting.
+SobatBalita merupakan aplikasi web berbasis Artificial Intelligence yang dikembangkan untuk membantu proses skrining awal kesehatan balita. Pada bagian Data Science, fokus pekerjaan berada pada pengolahan data tabular yang berisi informasi jenis kelamin, umur, tinggi badan, berat badan, serta label status stunting dan wasting.
 
-Tahapan utama yang dilakukan meliputi:
+Tahapan utama yang dilakukan dalam notebook ini meliputi:
 
 - Data gathering dan data understanding
 - Data quality assessment
@@ -19,48 +19,145 @@ Tahapan utama yang dilakukan meliputi:
 
 ## Dataset
 
-Sumber awal dataset berasal dari Kaggle:
+Dataset yang digunakan berasal dari Kaggle:
 
 **Stunting Wasting Dataset (Synthetic)**  
 https://www.kaggle.com/datasets/jabirmuktabir/stunting-wasting-dataset/data
 
-Pada notebook ini, dataset yang digunakan adalah versi hasil **noise injection**. Noise injection dilakukan untuk menyimulasikan kondisi data yang lebih realistis, karena data pada praktik nyata tidak selalu bersih dan dapat mengandung nilai kosong, duplikasi, kategori tidak valid, maupun nilai pengukuran yang tidak realistis.
-
-Dengan menggunakan versi tersebut, proses data quality assessment, data cleaning, dan preprocessing dapat dilakukan secara lebih bermakna sebelum dataset digunakan dalam proses pemodelan Machine Learning.
+Dataset ini merupakan dataset sintetis yang berisi data antropometri anak dengan fokus pada status stunting dan wasting. Meskipun dataset relatif sudah terstruktur, proses data cleaning tetap dilakukan untuk memastikan data bebas dari missing value, duplikasi, kategori tidak valid, serta nilai antropometri yang tidak realistis sebelum digunakan pada tahap analisis dan pemodelan.
 
 ## Struktur File
 
 | File | Keterangan |
 |---|---|
-| `Wasting_Dataset (1).ipynb` | Notebook utama untuk proses pengolahan dataset tabular, mulai dari data understanding, cleaning, EDA, feature engineering, hingga preprocessing. |
-| `stunting_wasting_dataset_dirty.csv` | Dataset utama yang digunakan pada notebook. Dataset ini merupakan versi hasil noise injection dari dataset awal Kaggle. |
+| `sobatbalita_stunting_wasting_data_science.ipynb` | Notebook utama untuk proses pengolahan dataset tabular, mulai dari data understanding, cleaning, EDA, feature engineering, hingga preprocessing. |
 | `df_clean.csv` | Dataset hasil proses cleaning dasar. |
 | `df_feat.csv` | Dataset hasil feature engineering dan preprocessing yang sudah disiapkan untuk tahap modeling. |
 | `modeling_ML_stuntingWasting_fix.ipynb` | Notebook modeling Machine Learning untuk prediksi stunting dan wasting, jika disertakan dalam repository. |
+
+## Alur Pengolahan Data
+
+### 1. Data Gathering
+
+Dataset dibaca dari Kaggle menggunakan file CSV utama dari dataset **Stunting Wasting Dataset (Synthetic)**. Dataset awal memiliki:
+
+- 100.000 baris
+- 6 kolom
+
+Kolom awal pada dataset meliputi:
+
+- `Jenis Kelamin`
+- `Umur (bulan)`
+- `Tinggi Badan (cm)`
+- `Berat Badan (kg)`
+- `Stunting`
+- `Wasting`
+
+### 2. Data Quality Assessment
+
+Tahap ini dilakukan untuk mengecek kualitas dataset sebelum diproses lebih lanjut. Pemeriksaan yang dilakukan meliputi:
+
+- Missing value
+- Data duplikat
+- Tipe data
+- Konsistensi kategori
+- Nilai minimum dan maksimum pada fitur numerik
+- Nilai antropometri yang tidak realistis
+
+Hasil assessment menunjukkan bahwa dataset tidak memiliki missing value, tetapi terdapat data duplikat yang perlu dihapus.
+
+### 3. Data Cleaning
+
+Tahap cleaning dilakukan untuk memastikan dataset memiliki struktur dan kualitas yang layak untuk analisis serta pemodelan.
+
+Proses cleaning yang dilakukan meliputi:
+
+- Normalisasi nama kolom
+- Penghapusan data duplikat
+- Pembersihan teks kategori
+- Konversi kolom numerik
+- Validasi kategori
+- Validasi rentang nilai umur, tinggi badan, dan berat badan
+- Pembulatan nilai numerik
+
+Setelah proses cleaning dasar, dataset menghasilkan:
+
+- `df_clean.csv`
+- 92.692 baris
+
+### 4. Exploratory Data Analysis
+
+EDA dilakukan untuk memahami distribusi data dan hubungan antarvariabel. Analisis yang dilakukan meliputi:
+
+- Distribusi status stunting
+- Distribusi status wasting
+- Hubungan umur dan tinggi badan terhadap status stunting
+- Hubungan tinggi badan dan berat badan terhadap status wasting
+- Korelasi antarfitur numerik
+- Hubungan antara status stunting dan wasting
+
+### 5. Feature Engineering
+
+Feature engineering dilakukan untuk membuat fitur tambahan yang lebih informatif bagi model Machine Learning.
+
+Fitur tambahan yang dibuat:
+
+| Fitur | Keterangan |
+|---|---|
+| `kelompok_umur` | Kelompok usia balita berdasarkan umur dalam bulan. |
+| `rasio_berat_tinggi` | Rasio berat badan terhadap tinggi badan. |
+| `bmi` | Body Mass Index sebagai fitur tambahan proporsi tubuh. |
+| `interaksi_tb_bb` | Fitur interaksi antara tinggi badan dan berat badan. |
+
+Fitur `rasio_tinggi_umur` dan `rasio_berat_umur` tidak digunakan karena umur 0 bulan merupakan nilai valid pada data balita. Pembagian langsung terhadap umur dapat menghasilkan nilai tidak stabil.
+
+### 6. Data Preprocessing
+
+Tahap preprocessing dilakukan untuk menyiapkan dataset agar dapat digunakan pada tahap modeling.
+
+Proses preprocessing meliputi:
+
+- Encoding `jenis_kelamin`
+- Mapping label `stunting` menjadi `stunting_target`
+- Mapping label `wasting` menjadi `wasting_target`
+- Pembuatan `stratify_label`
+- Pemisahan fitur dan target
+- Train-test split dengan stratifikasi
+
+Setelah feature engineering dan validasi fitur, dataset akhir menghasilkan:
+
+- `df_feat.csv`
+- 91.998 baris
+- 8 fitur input
+- 2 target prediksi
 
 ## Penjelasan Output Dataset
 
 ### `df_clean.csv`
 
-`df_clean.csv` adalah dataset hasil pembersihan data dasar. Dataset ini dibuat setelah data awal melalui beberapa proses cleaning, seperti:
+`df_clean.csv` adalah dataset hasil pembersihan data dasar. Dataset ini dibuat setelah dataset awal melalui proses cleaning seperti penghapusan duplikasi, normalisasi kolom, pembersihan kategori, konversi tipe data numerik, dan validasi nilai antropometri.
 
-- Normalisasi nama kolom
-- Penghapusan missing value
-- Penghapusan data duplikat
-- Pembersihan teks kategori
-- Konversi kolom numerik
-- Filter kategori yang valid
-- Filter nilai antropometri yang tidak realistis
-- Pembulatan nilai tinggi badan dan berat badan
+Dataset ini masih mempertahankan label kategori asli, seperti:
 
-Dataset ini masih mempertahankan label kategori asli, seperti `Normal`, `Stunted`, `Severely Stunted`, `Tall`, `Normal weight`, `Underweight`, dan kategori wasting lainnya.
+- `Normal`
+- `Stunted`
+- `Severely Stunted`
+- `Tall`
+- `Normal weight`
+- `Underweight`
+- `Severely Underweight`
+- `Risk of Overweight`
 
 ### `df_feat.csv`
 
 `df_feat.csv` adalah dataset lanjutan setelah proses feature engineering dan preprocessing. Dataset ini sudah berisi fitur tambahan dan target numerik yang dapat digunakan untuk proses modeling.
 
-Fitur tambahan yang dibuat antara lain:
+Kolom penting pada `df_feat.csv` meliputi:
 
+- `jenis_kelamin`
+- `umur_bulan`
+- `tinggi_badan_cm`
+- `berat_badan_kg`
 - `kelompok_umur`
 - `rasio_berat_tinggi`
 - `bmi`
@@ -69,13 +166,11 @@ Fitur tambahan yang dibuat antara lain:
 - `wasting_target`
 - `stratify_label`
 
-Dataset ini digunakan sebagai input utama pada tahap modeling Machine Learning.
-
 ## Data Dictionary
 
 | Kolom | Keterangan |
 |---|---|
-| `jenis_kelamin` | Jenis kelamin balita. Pada tahap preprocessing dapat diubah menjadi nilai numerik. |
+| `jenis_kelamin` | Jenis kelamin balita. Pada tahap preprocessing diubah menjadi nilai numerik. |
 | `umur_bulan` | Usia balita dalam bulan. |
 | `tinggi_badan_cm` | Tinggi badan balita dalam sentimeter. |
 | `berat_badan_kg` | Berat badan balita dalam kilogram. |
@@ -122,7 +217,13 @@ Pada tahap modeling, fitur training hanya menggunakan kolom input yang relevan, 
 - `bmi`
 - `interaksi_tb_bb`
 
-Kolom `stunting_target`, `wasting_target`, dan `stratify_label` tidak dimasukkan ke dalam fitur training. `stunting_target` dan `wasting_target` digunakan sebagai target prediksi, sedangkan `stratify_label` hanya digunakan untuk menjaga proporsi kelas pada proses train-test split.
+Kolom berikut tidak dimasukkan ke dalam fitur training:
+
+- `stunting_target`
+- `wasting_target`
+- `stratify_label`
+
+`stunting_target` dan `wasting_target` digunakan sebagai target prediksi, sedangkan `stratify_label` hanya digunakan untuk menjaga proporsi kelas pada proses train-test split. Dengan demikian, proses modeling menghindari data leakage karena target tidak dimasukkan ke dalam fitur training.
 
 ## Catatan Penting
 
